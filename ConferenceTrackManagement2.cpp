@@ -158,7 +158,6 @@ int main()
         }
         timingsStr.push_back(x);
     }
-    for(auto it:timings) cout<<it<<" ";
 
     vector<int> vis(n, 0);
     int days = countNumberOfDays(timings);

@@ -45,7 +45,6 @@ int countNumberOfDays(vector<int> &timings)
     }
     int totalHours = totalTime / 60;
     int totalDays = ceil((double)totalHours / (double)7);
-    cout<<totalTime<<" "<<totalHours<<" "<<totalDays<<endl;
     return totalDays;
 }
 
