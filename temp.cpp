@@ -45,16 +45,36 @@ int countNumberOfDays(vector<int> &timings)
     }
     int totalHours = totalTime / 60;
     int totalDays = ceil((double)totalHours / (double)7);
-    cout<<totalTime<<" "<<totalHours<<" "<<totalDays<<endl;
     return totalDays;
 }
 
-bool generateTrackes(int ind, int minuits, int limit, vector<int> &vis, vector<int> &timings,
+bool generateTrackes(int ind, int minuits, int limit,int countLunch,int countDay,int days,int cntEvents,int n, vector<int> &vis, vector<int> &timings,
               vector<pair<int, int> > &sessions)
 {
-    if (minuits == limit)
+    if (countDay == days && countLunch == days && cntEvents == n)
     {
         return true;
+    }
+
+    if (countDay == days && countLunch == days && (cntEvents < n || cntEvents > n))
+    {
+        return false;
+    }
+
+    if(minuits > limit) return false;
+
+    if(minuits == limit && countLunch == countDay){
+        sessions.push_back(make_pair(60,-1));
+        if (generateTrackes(ind, 0, 240,countLunch+1,countDay,days,cntEvents,n,vis, timings, sessions))
+                return true;
+        sessions.pop_back();
+    }
+
+    if(minuits > 180 && minuits <= limit && countLunch > countDay){
+        sessions.push_back(make_pair(60,-2));
+        if (generateTrackes(ind, 0, 180,countLunch,countDay+1,days,cntEvents,n,vis, timings, sessions))
+                return true;
+        sessions.pop_back();
     }
 
     for (int i = 0; i < timings.size(); i++)
@@ -62,8 +82,8 @@ bool generateTrackes(int ind, int minuits, int limit, vector<int> &vis, vector<i
         if (!vis[i] && minuits + timings[i] <= limit)
         {
             vis[i] = 1;
-            sessions.push_back(make_pair(timings[i], i));
-            if (generateTrackes(i, minuits + timings[i], limit, vis, timings, sessions))
+            sessions.push_back(make_pair(timings[i],i));
+            if (generateTrackes(i, minuits + timings[i], limit,countLunch,countDay,days,cntEvents+1,n,vis, timings, sessions))
                 return true;
             sessions.pop_back();
             vis[i] = 0;
@@ -123,42 +143,34 @@ int main()
         getline(cin >> ws, x);
         string strInt = "";
         string str = "";
-        for (int i = x.length() - 4; i >= x.length() - 5; i--)
-        {
-            strInt = x[i] + strInt;
+        string light = "";
+        if(x[x.size()-1] == 'g'){
+            timings.push_back(5);
         }
+        else{
+            for (int i = x.length() - 4; i >= x.length() - 5; i--)
+            {
+                strInt = x[i] + strInt;
+            }
+            int xInt = stoi(strInt);
 
-        int xInt = stoi(strInt);
-
-        timings.push_back(xInt);
+            timings.push_back(xInt);
+        }
         timingsStr.push_back(x);
     }
+    for(auto it:timings) cout<<it<<" ";
 
     vector<int> vis(n, 0);
     int days = countNumberOfDays(timings);
-    cout<<days<<endl;
     vector<pair<int, int> > sessions;
+
     int tempDays = days;
-    while (tempDays--)
-    {
-        for (int i = 0; i < vis.size(); i++)
-        {
-            if (!vis[i])
-            {
-                if (generateTrackes(0, 0, 180, vis, timings, sessions))
-                    break;
-            }
+    int minuts = ((days*7)*60);
+    for(int i=0;i<vis.size();i++){
+        if(!vis[i]){
+            if(generateTrackes(i,0,180,0,0,days,0,n,vis,timings,sessions))
+                break;
         }
-        sessions.push_back(make_pair(60, -1));
-        for (int i = 0; i < vis.size(); i++)
-        {
-            if (!vis[i])
-            {
-                if (generateTrackes(0, 0, 240, vis, timings, sessions))
-                    break;
-            }
-        }
-        sessions.push_back(make_pair(60, -2));
     }
     printOutput(sessions,timingsStr,days);
     return 0;
@@ -173,7 +185,7 @@ Overdoing it in Python 45min
 Lua for the Masses 30min
 Ruby Errors from Mismatched Gem Versions 45min
 Common Ruby Errors 45min
-Rails for Python Developers lightning 60min
+Rails for Python Developers lightning
 Communicating Over Distance 60min
 Accounting-Driven Development 45min
 Woah 30min
